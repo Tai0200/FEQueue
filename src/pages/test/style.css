@@ -1,0 +1,44 @@
+.circle {
+    display: flex;
+    margin: 100px 100px;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: conic-gradient(
+        red 0deg 270deg,
+        white 270deg 360deg
+    );
+    justify-content: center;
+    align-items: center;
+}
+.middle-circle {
+    display: flex;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: white;
+    justify-content: center;
+    align-items: center;
+}
+
+.first-circle {
+    display: flex;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(
+    blue 0deg 90deg,
+    white 90deg 360deg
+    );
+    justify-content: center;
+    align-items: center;
+}
+.inner-circle {
+    display: flex;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: white;
+    justify-content: center;
+    align-items: center;
+}
