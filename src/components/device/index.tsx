@@ -17,16 +17,16 @@ import { SignalRContext } from "../../helpers/SignalRProvider";
 import TicketDisplay from "../TicketDisplay/TicketDisplay";
 const { Option } = Select;
 type DeviceListProps = {
-  sendSelectedIndex: (index:number, data:any) => void;
+  sendSelectedIndex: (index: number, data: any) => void;
   columns: number;
   headerText: string;
   buttonText: string;
   filter1: string;
-  data:any[];
-  rowCount?: number; 
-  filter2:string;
+  data: any[];
+  rowCount?: number;
+  filter2: string;
 }
-const initialValues={
+const initialValues = {
   fullName: "", // Pre-fill the username field
   email: "", // Pre-fill the email field
   phoneNumber: "",
@@ -34,17 +34,17 @@ const initialValues={
 const DeviceList = React.memo((props: DeviceListProps) => {
   const connection = useContext(SignalRContext);
   const [deletedEmail, setDeletedEmail] = useState('');
-  const [isModelDeleteOpen,setIsModelDeleteOpen] = useState(false);
+  const [isModelDeleteOpen, setIsModelDeleteOpen] = useState(false);
   const token = localStorage.getItem('token');
   const [filter1Value, setFilter1Value] = useState('All');
   const [filter2Value, setFilter2Value] = useState('All');
   const [status, setStatus] = useState('All');
-  const [searchText, setSearchText] = useState(''); 
+  const [searchText, setSearchText] = useState('');
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [internalData, setInternalData] = useState<any>([]);
   const [displayData, setDisplayData] = useState<any>([]);
-  const [serviceOptions, setServiceOptions] = useState<{value:string, label: string}[]>([])
+  const [serviceOptions, setServiceOptions] = useState<{ value: string, label: string }[]>([])
   const [internalColumns, setInternalColumns] = useState<any>([]);
   const [dataUserEdit, setDataUserEdit] = useState<any>({});
   const [isModelNumberOpen, setIsModalNumberOpen] = useState(false);
@@ -53,37 +53,37 @@ const DeviceList = React.memo((props: DeviceListProps) => {
   const [assignmentDate, setAssignmentDate] = useState<string>('');
   const [serviceName, setServiceName] = useState<string>('');
   const [data, setData] = useState(props.data);
-  const [rowCount, setRowCount] = useState(props.rowCount??1);
-  
-  const receiveStatus = (status:boolean) => {
-      setIsModalOpen(status);
+  const [rowCount, setRowCount] = useState(props.rowCount ?? 1);
+
+  const receiveStatus = (status: boolean) => {
+    setIsModalOpen(status);
   }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
-    const customPagination = {
-      current: currentPage,          // Current page number
-      pageSize: pageSize,        // Number of items per page
-      total: rowCount,          // Total number of items
-      showSizeChanger: true,
-      pageSizeOptions: ['10', '5', '2'], // Optional: Page size options
-      // You can also specify other pagination properties like showSizeChanger, showTotal, etc.
-      onChange: async (page:number) => {
-        setLoading(true);
-        setCurrentPage(page);
-        let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___", page, 5, "-1");
-        setData(temp);
-        setLoading(false);       
-      },
-      onShowSizeChange: async(current:number, newSize:number) => {
-        // Handle the page size change event
-        setPageSize(newSize);
-        setCurrentPage(current)
-      },
-    };
-  
-  const receiveIsNumberDisplay = (status:boolean, data:any) => {
-    if(status){
+  const customPagination = {
+    current: currentPage,          // Current page number
+    pageSize: pageSize,        // Number of items per page
+    total: rowCount,          // Total number of items
+    showSizeChanger: true,
+    pageSizeOptions: ['10', '5', '2'], // Optional: Page size options
+    // You can also specify other pagination properties like showSizeChanger, showTotal, etc.
+    onChange: async (page: number) => {
+      setLoading(true);
+      setCurrentPage(page);
+      let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___", page, 5, "-1");
+      setData(temp);
+      setLoading(false);
+    },
+    onShowSizeChange: async (current: number, newSize: number) => {
+      // Handle the page size change event
+      setPageSize(newSize);
+      setCurrentPage(current)
+    },
+  };
+
+  const receiveIsNumberDisplay = (status: boolean, data: any) => {
+    if (status) {
       setCustomerName(data.customerName);
       setNewNumber(data.code);
       setServiceName(data.serviceName);
@@ -151,17 +151,17 @@ const DeviceList = React.memo((props: DeviceListProps) => {
     {
       title: "",
       key: "actions",
-      render: (text:string, record:any, index:number) => (
+      render: (text: string, record: any, index: number) => (
         <>
           <a href="#" style={{ marginRight: 10 }}
           >
             Xóa
           </a>
           <a href="#"
-          onClick={() => {
-            setDataUserEdit(record);
-            setIsModalOpen(true);
-          }}
+            onClick={() => {
+              setDataUserEdit(record);
+              setIsModalOpen(true);
+            }}
           >Cập nhật</a>
         </>
       ),
@@ -179,9 +179,9 @@ const DeviceList = React.memo((props: DeviceListProps) => {
       key: "servicName",
     },
     {
-        title: "Mô tả",
-        dataIndex: "description",
-        key: "description",
+      title: "Mô tả",
+      dataIndex: "description",
+      key: "description",
     },
     {
       title: "Trạng thái hoạt động",
@@ -208,51 +208,51 @@ const DeviceList = React.memo((props: DeviceListProps) => {
       ),
     },
   ];
-  const renderStatus = React.useCallback((status:string) => {
-  return status === "Đang online" ? (
-    <Tag color="blue">{status}</Tag>
-  ) : (
-    <Tag color="red">{status}</Tag>
-  );
-}, []);
-  const renderActions = React.useCallback((text:string, record:any, index:number) => {
-  return (
-    <>
-    {localStorage.getItem('userRole')!='Doctor'?
-      <a href="#" style={{ marginRight: 10 }}
-      onClick={()=>{
-          setIsModelDeleteOpen(true);
-          setDeletedEmail(record.email);
-      }}>
-        Xóa
-      </a>:null}
-      <a
-        href="#"
-        onClick={() => {
-          setDataUserEdit(record);
-          setIsModalOpen(true);
-        }}
-      >
-        Cập nhật
-      </a>
-    </>
-  );
-}, [setDataUserEdit, setIsModalOpen]);
-const deleteUser = async(email:string)=>{
-  return new Promise(resolve=>{
-    fetch(process.env.REACT_APP_API_URL + 'api/User/' + email , {
-      method:'DELETE', 
-      headers: {
-        'Authorization':`Bearer ${token}`,
-      }
-    }).then(response=>response.json())
-    .then(async(data:string)=>{
-      resolve(data);
+  const renderStatus = React.useCallback((status: string) => {
+    return status === "Đang online" ? (
+      <Tag color="blue">{status}</Tag>
+    ) : (
+      <Tag color="red">{status}</Tag>
+    );
+  }, []);
+  const renderActions = React.useCallback((text: string, record: any, index: number) => {
+    return (
+      <>
+        {localStorage.getItem('userRole') != 'Doctor' ?
+          <a href="#" style={{ marginRight: 10 }}
+            onClick={() => {
+              setIsModelDeleteOpen(true);
+              setDeletedEmail(record.email);
+            }}>
+            Xóa
+          </a> : null}
+        <a
+          href="#"
+          onClick={() => {
+            setDataUserEdit(record);
+            setIsModalOpen(true);
+          }}
+        >
+          Cập nhật
+        </a>
+      </>
+    );
+  }, [setDataUserEdit, setIsModalOpen]);
+  const deleteUser = async (email: string) => {
+    return new Promise(resolve => {
+      fetch(process.env.REACT_APP_API_URL + 'api/User/' + email, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      }).then(response => response.json())
+        .then(async (data: string) => {
+          resolve(data);
+        })
+        .catch(error => console.log(error))
     })
-    .catch(error=>console.log(error))
-  })
   }
-  const columnsUser = React.useMemo(()=>[
+  const columnsUser = React.useMemo(() => [
     {
       title: "Email",
       dataIndex: "email",
@@ -264,9 +264,9 @@ const deleteUser = async(email:string)=>{
       key: "fullName",
     },
     {
-        title: "Số điện thoại",
-        dataIndex: "phoneNumber",
-        key: "phoneNumber",
+      title: "Số điện thoại",
+      dataIndex: "phoneNumber",
+      key: "phoneNumber",
     },
     {
       title: "Vai trò",
@@ -290,15 +290,15 @@ const deleteUser = async(email:string)=>{
       title: "STT",
       dataIndex: "code",
       key: "code",
-      render: (text:string, record:any, index:number)=>{
-        if(localStorage.getItem('userRole')=='Doctor')
-        return(
-          <a href='#' onClick={()=>{
-            
-          }}>{text}</a>
-        )
+      render: (text: string, record: any, index: number) => {
+        if (localStorage.getItem('userRole') == 'Doctor')
+          return (
+            <a href='#' onClick={() => {
+
+            }}>{text}</a>
+          )
         else
-        return(<span>{text}</span>)
+          return (<span>{text}</span>)
       }
     },
     {
@@ -312,9 +312,9 @@ const deleteUser = async(email:string)=>{
       key: "serviceName",
     },
     {
-        title: "Thời gian cấp",
-        dataIndex: "assignmentDate",
-        key: "assignmentDate",
+      title: "Thời gian cấp",
+      dataIndex: "assignmentDate",
+      key: "assignmentDate",
     },
     {
       title: "Hạn sử dụng",
@@ -330,7 +330,7 @@ const deleteUser = async(email:string)=>{
           <Tag color="blue">{status}</Tag>
         ) : status === "Đã sử dụng" ? (
           <Tag color="gray">{status}</Tag>
-        ): (<Tag color="red">{status}</Tag>)
+        ) : (<Tag color="red">{status}</Tag>)
     },
     {
       title: "Nguồn cấp",
@@ -340,165 +340,165 @@ const deleteUser = async(email:string)=>{
     {
       title: "",
       key: "actions",
-      render: (record:any) => (
+      render: (record: any) => (
         <>
           <a href="#" style={{ marginRight: 10 }}
-          onClick={()=>{
-            if(props.columns==3){
-                fetch(process.env.REACT_APP_API_URL+'api/Assignment/' + record.code + '/1', {
-                  method:'PUT',
+            onClick={() => {
+              if (props.columns == 3) {
+                fetch(process.env.REACT_APP_API_URL + 'api/Assignment/' + record.code + '/1', {
+                  method: 'PUT',
                   headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                   }
-                }).then(res=>res.json())
-                .then(async (data)=>{
-                    if(data.message=='Updated'){
-                        let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___",1, 5, "-1");
-                        setData(temp);
-                        setCurrentPage(1);
+                }).then(res => res.json())
+                  .then(async (data) => {
+                    if (data.message == 'Updated') {
+                      let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___", 1, 5, "-1");
+                      setData(temp);
+                      setCurrentPage(1);
                     }
-                })
-                .catch(error=>console.log(error));
-            }
-          }}
+                  })
+                  .catch(error => console.log(error));
+              }
+            }}
           >
-            {props.columns==3?'Khám':'Chi tiết'}
+            {props.columns == 3 ? 'Khám' : 'Chi tiết'}
           </a>
         </>
       ),
     },
   ];
-  
-  useEffect(()=>{
-    if(connection!=null)
+
+  useEffect(() => {
+    if (connection != null)
       connection.on("AssignmentUpdated", async (status: boolean) => {
-        if(status&&props.columns==3){
-            let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___",1, 5, "-1");
-            let count = await getTotalNumber('All','2000-01-01','2050-12-31', 'All', '___', 'All')
-            setRowCount(count);
-            setData(temp);
+        if (status && props.columns == 3) {
+          let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___", 1, 5, "-1");
+          let count = await getTotalNumber('All', '2000-01-01', '2050-12-31', 'All', '___', 'All')
+          setRowCount(count);
+          setData(temp);
         }
-  // update local state or refetch
-});
-  },[]);
+        // update local state or refetch
+      });
+  }, []);
   return (
     <div className="device-list">
       <div className="top-bar">
-      <h2>{props.headerText}</h2>
-      <UserSection count={displayData.filter((x:any)=>x.status=='Đang chờ').length} />
+        <h2>{props.headerText}</h2>
+        <UserSection count={displayData.filter((x: any) => x.status == 'Đang chờ').length} />
       </div>
-       {/* User section */}
+      {/* User section */}
       {/* Filters */}
       <div className="filters">
         <div className="leftFilterItem">
           <div className="filterItem">
-            <span style={{marginBottom:'5px'}}>{props.filter1}</span>
+            <span style={{ marginBottom: '5px' }}>{props.filter1}</span>
             <Select defaultValue="Tất cả" style={{ width: 180 }} className="filter"
             >
-              {props.columns==1||props.columns==2?DeviceStatus.map(item=>{
-                return(
+              {props.columns == 1 || props.columns == 2 ? DeviceStatus.map(item => {
+                return (
                   <Option value={item.value}>{item.label}</Option>
                 )
               })
-              :props.columns==4?UserRole.map(item=>{
-                return(
-                  <Option value={item.value}>{item.label}</Option>
-                )
-              })
-              : <><Option value="All">Tất cả</Option>
-              {serviceOptions.map(item=>{
-                return(
-                  <Option value={item.value}>{item.label}</Option>
-                )
-              })}
-              </>
-            } 
+                : props.columns == 4 ? UserRole.map(item => {
+                  return (
+                    <Option value={item.value}>{item.label}</Option>
+                  )
+                })
+                  : <><Option value="All">Tất cả</Option>
+                    {serviceOptions.map(item => {
+                      return (
+                        <Option value={item.value}>{item.label}</Option>
+                      )
+                    })}
+                  </>
+              }
             </Select>
           </div>
           <div className="filterItem">
-        <span style={{marginBottom:'5px'}}>{props.filter2}</span>
-        <Select defaultValue="Tất cả" style={{ width: 180 }} className="filter"
-        >
-        {props.columns==1?DeviceConnected.map(item=>{
-                return(
+            <span style={{ marginBottom: '5px' }}>{props.filter2}</span>
+            <Select defaultValue="Tất cả" style={{ width: 180 }} className="filter"
+            >
+              {props.columns == 1 ? DeviceConnected.map(item => {
+                return (
                   <Option value={item.value}>{item.label}</Option>
                 )
               })
-              :props.columns==2?<Option value='All'>Tất cả</Option>
-              :props.columns==4?UserStatus.map(item=>{
-                return(
-                  <Option value={item.value}>{item.label}</Option>
-                )
-              })
-              : 
-              NumberStatus.map(item=>{
-                return(
-                  <Option value={item.value}>{item.label}</Option>
-                )
-              })
-            } 
-        </Select>
+                : props.columns == 2 ? <Option value='All'>Tất cả</Option>
+                  : props.columns == 4 ? UserStatus.map(item => {
+                    return (
+                      <Option value={item.value}>{item.label}</Option>
+                    )
+                  })
+                    :
+                    NumberStatus.map(item => {
+                      return (
+                        <Option value={item.value}>{item.label}</Option>
+                      )
+                    })
+              }
+            </Select>
           </div>
         </div>
         <div className="leftFilterItem">
           <div className="filterItem">
-            <span style={{marginBottom:'5px'}}>Từ khóa</span>
+            <span style={{ marginBottom: '5px' }}>Từ khóa</span>
             <Input
-          placeholder="Nhập từ khóa"
-          value={searchText}
-          onChange={async(e) => {
+              placeholder="Nhập từ khóa"
+              value={searchText}
+              onChange={async (e) => {
 
-          }}
-          style={{ width: 240 }}
-          suffix={<SearchOutlined />}
+              }}
+              style={{ width: 240 }}
+              suffix={<SearchOutlined />}
             />
           </div>
-      </div>
+        </div>
       </div>
       <div className="middleData">
-      <Table style={{width:'88%'}}
-        dataSource={data}
-        columns={props.columns==1?columns:props.columns==2?columnsSvc:props.columns==3?columnsPN:columnsUser}
-        loading={{spinning:loading, delay:200}}
-        pagination={props.columns==1||props.columns==2?{pageSize:8}:customPagination}
-        className="device-table"
-      />
-      <div style={{width:'10%', marginLeft:'10px', display:'flex', flexDirection:'row', justifyContent:'flex-start'}}>
-      {localStorage.getItem('userRole')!='Doctor'?<AddDeviceButton sendStatus={receiveStatus} headerText={props.buttonText} />:null}
+        <Table style={{ width: '88%' }}
+          dataSource={data}
+          columns={props.columns == 1 ? columns : props.columns == 2 ? columnsSvc : props.columns == 3 ? columnsPN : columnsUser}
+          loading={{ spinning: loading, delay: 200 }}
+          pagination={props.columns == 1 || props.columns == 2 ? { pageSize: 8 } : customPagination}
+          className="device-table"
+        />
+        <div style={{ width: '10%', marginLeft: '10px', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+          {localStorage.getItem('userRole') != 'Doctor' ? <AddDeviceButton sendStatus={receiveStatus} headerText={props.buttonText} /> : null}
+        </div>
       </div>
-      </div>
-      <Modal title="" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} onClose={()=>{
+      <Modal title="" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} onClose={() => {
         setDataUserEdit({});
       }}
-      width="60%" footer={null}
-      style={{ padding: "20px" }} // Optional: Customize padding
+        width="60%" footer={null}
+        style={{ padding: "20px" }} // Optional: Customize padding
       >
-        {props.columns==3?<NewQueueForm serviceOptions={serviceOptions} 
-        isNumberDisplay={receiveIsNumberDisplay}
-        />:props.columns==4?<AccountForm myForm={dataUserEdit} serviceOptions={serviceOptions}
-        handleSendStatus={receiveStatus}
-        />:props.columns==1?<DeviceForm myForm={dataUserEdit} serviceOptions={serviceOptions}
-        handleSendStatus={receiveStatus}/>
-        :<ServiceForm />
-      }
+        {props.columns == 3 ? <NewQueueForm serviceOptions={serviceOptions}
+          isNumberDisplay={receiveIsNumberDisplay}
+        /> : props.columns == 4 ? <AccountForm myForm={dataUserEdit} serviceOptions={serviceOptions}
+          handleSendStatus={receiveStatus}
+        /> : props.columns == 1 ? <DeviceForm myForm={dataUserEdit} serviceOptions={serviceOptions}
+          handleSendStatus={receiveStatus} />
+          : <ServiceForm />
+        }
       </Modal>
       <Modal title="" open={isModelNumberOpen} onOk={handleNumberOk} onCancel={handleNumberCancel}
-      footer={null} className="custom-modal"
+        footer={null} className="custom-modal"
       >
-          <TicketDisplay ticketNumber={newNumber} serviceName = {serviceName} issueTime = {assignmentDate}
+        <TicketDisplay ticketNumber={newNumber} serviceName={serviceName} issueTime={assignmentDate}
           customerName={customerName} expiryTime="Trong ngày"
-      />
-      </Modal> 
-      <Modal title="Confirm Delete" open={isModelDeleteOpen} onOk={async()=>{
-         await deleteUser(deletedEmail);
-         setIsModelDeleteOpen(false);
-         setLoading(true);
-  
-      }} onCancel={()=>{setIsModelDeleteOpen(false)}}
-      className="custom-modal"
+        />
+      </Modal>
+      <Modal title="Confirm Delete" open={isModelDeleteOpen} onOk={async () => {
+        await deleteUser(deletedEmail);
+        setIsModelDeleteOpen(false);
+        setLoading(true);
+
+      }} onCancel={() => { setIsModelDeleteOpen(false) }}
+        className="custom-modal"
       >
-          <h3>Bạn thật sự muốn xóa tài khoản này?</h3>
-      </Modal>   
+        <h3>Bạn thật sự muốn xóa tài khoản này?</h3>
+      </Modal>
     </div>
   );
 });

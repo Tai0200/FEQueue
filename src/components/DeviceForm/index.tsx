@@ -6,37 +6,37 @@ const { Option } = Select;
 type FormProps = {
   myForm: any,
   serviceOptions: any,
-  handleSendStatus: (status:boolean)=>void
+  handleSendStatus: (status: boolean) => void
 }
-const DeviceForm = (props:FormProps) => {
+const DeviceForm = (props: FormProps) => {
   const [form] = Form.useForm();
   const token = localStorage.getItem('token');
   const initialValues = Object.keys(props.myForm).length === 0 ?
-  {
-    deviceCode: '', // Pre-fill the username field
-    deviceName: '', // Pre-fill the email field
-    ipAddress: '',
-    username:'',
-    password:'',
-    operationStatus:false,
-    connected:false
-  }
-  : {
-    deviceCode: props.myForm.deviceCode, // Pre-fill the username field
-    deviceName: props.myForm.deviceName, // Pre-fill the email field
-    ipAddress: props.myForm.ipAddress,
-    username: props.myForm.username,
-    password: props.myForm.password,
-    operationStatus: props.myForm.operationStatus=="Active"?true:false,
-    connected: props.myForm.connected=="Connected"?true:false
-  }
-  const handleFinish = async (values: any) => {
-    if(props.myForm.deviceCode==""){
-              
+    {
+      deviceCode: '', // Pre-fill the username field
+      deviceName: '', // Pre-fill the email field
+      ipAddress: '',
+      username: '',
+      password: '',
+      operationStatus: false,
+      connected: false
     }
-    else{
-    
-  }
+    : {
+      deviceCode: props.myForm.deviceCode, // Pre-fill the username field
+      deviceName: props.myForm.deviceName, // Pre-fill the email field
+      ipAddress: props.myForm.ipAddress,
+      username: props.myForm.username,
+      password: props.myForm.password,
+      operationStatus: props.myForm.operationStatus == "Active" ? true : false,
+      connected: props.myForm.connected == "Connected" ? true : false
+    }
+  const handleFinish = async (values: any) => {
+    if (props.myForm.deviceCode == "") {
+
+    }
+    else {
+
+    }
   };
 
   return (
@@ -86,13 +86,13 @@ const DeviceForm = (props:FormProps) => {
           </Col>
           {/* Cột 2 */}
           <Col xs={24} lg={12}>
-          <Form.Item label="Đang hoạt động" name="operationStatus" valuePropName="checked">
+            <Form.Item label="Đang hoạt động" name="operationStatus" valuePropName="checked">
               <Switch />
-          </Form.Item>
-          <Form.Item label="Đang kết nối" name="connected" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-          <Form.Item
+            </Form.Item>
+            <Form.Item label="Đang kết nối" name="connected" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item
               name="username"
               label="Tên đăng nhập"
               rules={[{ required: true, message: 'Tên đăng nhập là bắt buộc' }]}
