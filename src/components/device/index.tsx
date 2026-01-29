@@ -1,7 +1,7 @@
 // components/DeviceList.tsx
 import React, { useEffect, useState, useContext } from "react";
 import { fetchWithTokenRetry } from "../../helpers/tokens";
-import { Table, Select, Input, Modal, Tag } from "antd";
+import { Table, Select, Input, Modal, Tag, message } from "antd";
 import _ from 'lodash';
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import "./DeviceList.css";
@@ -35,6 +35,8 @@ const initialValues = {
 const DeviceList = React.memo((props: DeviceListProps) => {
   const connection = useContext(SignalRContext);
   const [deletedEmail, setDeletedEmail] = useState('');
+  const [deleteId, setDeleteId] = useState('');
+  const [deleteType, setDeleteType] = useState<'User' | 'Device' | 'Service'>('User');
   const [isModelDeleteOpen, setIsModelDeleteOpen] = useState(false);
   const token = localStorage.getItem('token');
   const [filter1Value, setFilter1Value] = useState('All');
@@ -155,6 +157,11 @@ const DeviceList = React.memo((props: DeviceListProps) => {
       render: (text: string, record: any, index: number) => (
         <>
           <a href="#" style={{ marginRight: 10 }}
+            onClick={() => {
+              setDeleteType('Device');
+              setDeleteId(record.deviceCode);
+              setIsModelDeleteOpen(true);
+            }}
           >
             Xóa
           </a>
@@ -198,13 +205,20 @@ const DeviceList = React.memo((props: DeviceListProps) => {
     {
       title: "Hành động",
       key: "actions",
-      render: () => (
+      render: (text: string, record: any, index: number) => (
         <>
           <a href="#" style={{ marginRight: 10 }} >
             Chi tiết
           </a>
-          <a href="#"
+          <a href="#" style={{ marginRight: 10 }}
           >Cập nhật</a>
+          <a href="#"
+            onClick={() => {
+              setDeleteType('Service');
+              setDeleteId(record.serviceCode);
+              setIsModelDeleteOpen(true);
+            }}
+          >Xóa</a>
         </>
       ),
     },
@@ -222,8 +236,9 @@ const DeviceList = React.memo((props: DeviceListProps) => {
         {localStorage.getItem('userRole') != 'Doctor' ?
           <a href="#" style={{ marginRight: 10 }}
             onClick={() => {
+              setDeleteType('User');
+              setDeleteId(record.email);
               setIsModelDeleteOpen(true);
-              setDeletedEmail(record.email);
             }}>
             Xóa
           </a> : null}
@@ -240,15 +255,19 @@ const DeviceList = React.memo((props: DeviceListProps) => {
     );
   }, [setDataUserEdit, setIsModalOpen]);
   const deleteUser = async (email: string) => {
-    return new Promise(resolve => {
-      fetchWithTokenRetry(process.env.REACT_APP_API_URL + 'api/User/' + email, {
-        method: 'DELETE',
-      }).then(response => response.json())
-        .then(async (data: string) => {
-          resolve(data);
-        })
-        .catch(error => console.log(error))
-    })
+    return fetchWithTokenRetry(process.env.REACT_APP_API_URL + 'api/User/' + email, {
+      method: 'DELETE',
+    });
+  }
+  const deleteDevice = async (code: string) => {
+    return fetchWithTokenRetry(process.env.REACT_APP_API_URL + 'api/Device/' + code, {
+      method: 'DELETE',
+    });
+  }
+  const deleteService = async (code: string) => {
+    return fetchWithTokenRetry(process.env.REACT_APP_API_URL + 'api/Service/' + code, {
+      method: 'DELETE',
+    });
   }
   const columnsUser = React.useMemo(() => [
     {
@@ -485,14 +504,37 @@ const DeviceList = React.memo((props: DeviceListProps) => {
         />
       </Modal>
       <Modal title="Confirm Delete" open={isModelDeleteOpen} onOk={async () => {
-        await deleteUser(deletedEmail);
-        setIsModelDeleteOpen(false);
         setLoading(true);
+        try {
+          let response;
+          if (deleteType === 'User') response = await deleteUser(deleteId);
+          else if (deleteType === 'Device') response = await deleteDevice(deleteId);
+          else if (deleteType === 'Service') response = await deleteService(deleteId);
 
+          if (response && response.ok) {
+            // Cập nhật state nội bộ để xóa dòng vừa xóa khỏi giao diện ngay lập tức
+            const newData = data.filter((item: any) => {
+              if (deleteType === 'User') return item.email !== deleteId;
+              if (deleteType === 'Device') return item.deviceCode !== deleteId;
+              if (deleteType === 'Service') return item.serviceCode !== deleteId;
+              return true;
+            });
+            setData(newData);
+            message.success('Xóa thành công');
+          } else {
+            message.error('Xóa thất bại');
+          }
+        } catch (error) {
+          console.error("Error deleting:", error);
+          message.error('Có lỗi xảy ra khi xóa');
+        } finally {
+          setIsModelDeleteOpen(false);
+          setLoading(false);
+        }
       }} onCancel={() => { setIsModelDeleteOpen(false) }}
         className="custom-modal"
       >
-        <h3>Bạn thật sự muốn xóa tài khoản này?</h3>
+        <h3>Bạn thật sự muốn xóa {deleteType === 'User' ? 'tài khoản' : deleteType === 'Device' ? 'thiết bị' : 'dịch vụ'} này?</h3>
       </Modal>
     </div>
   );

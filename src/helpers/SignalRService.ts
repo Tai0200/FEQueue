@@ -20,7 +20,8 @@ class SignalRService {
   }
 
   async startConnection() {
-    console.log("SignalR connection skipped (temporarily disabled)");
+    console.warn("SignalR connection is COMPLETELY DISABLED by request.");
+    return;
     /*
     try {
       if (this.connection.state === signalR.HubConnectionState.Disconnected) {
