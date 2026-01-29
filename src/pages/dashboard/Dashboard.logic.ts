@@ -50,6 +50,89 @@ export const getDeviceData = async (): Promise<any> => {
     }
 }
 
+export const deleteDevice = async (deviceCode: string): Promise<{ success: boolean; message: string }> => {
+    const token = localStorage.getItem('token');
+    const url = `${process.env.REACT_APP_API_URL}api/Device/${deviceCode}`;
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.ok) {
+            return { success: true, message: 'Xóa thiết bị thành công' };
+        }
+        return { success: false, message: 'Xóa thiết bị thất bại' };
+    } catch (error) {
+        console.error("Error deleting device:", error);
+        return { success: false, message: 'Lỗi kết nối server' };
+    }
+}
+
+export const updateDevice = async (deviceData: {
+    DeviceCode: string;
+    DeviceName: string;
+    IpAddress: string;
+    UserName: string;
+    Password: string;
+    Services: string;
+    OperationStatus: boolean;
+    Connected: boolean;
+}): Promise<{ success: boolean; message: string }> => {
+    const token = localStorage.getItem('token');
+    const url = `${process.env.REACT_APP_API_URL}api/Device/${deviceData.DeviceCode}`;
+    try {
+        const response = await fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(deviceData)
+        });
+        if (response.ok) {
+            return { success: true, message: 'Cập nhật thiết bị thành công' };
+        }
+        return { success: false, message: 'Cập nhật thiết bị thất bại' };
+    } catch (error) {
+        console.error("Error updating device:", error);
+        return { success: false, message: 'Lỗi kết nối server' };
+    }
+}
+
+export const createDevice = async (deviceData: {
+    DeviceCode: string;
+    DeviceName: string;
+    IpAddress: string;
+    UserName: string;
+    Password: string;
+    Services: string;
+    OperationStatus: boolean;
+    Connected: boolean;
+}): Promise<{ success: boolean; message: string }> => {
+    const token = localStorage.getItem('token');
+    const url = `${process.env.REACT_APP_API_URL}api/Device/`;
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(deviceData)
+        });
+        if (response.ok) {
+            return { success: true, message: 'Thêm thiết bị thành công' };
+        }
+        return { success: false, message: 'Thêm thiết bị thất bại' };
+    } catch (error) {
+        console.error("Error creating device:", error);
+        return { success: false, message: 'Lỗi kết nối server' };
+    }
+}
+
 export const getUserData = async (): Promise<any> => {
     const url = `${process.env.REACT_APP_API_URL}api/Authenticate`;
     try {
@@ -57,7 +140,7 @@ export const getUserData = async (): Promise<any> => {
         if (response.ok) {
             return await response.json();
         }
-        return response; // Trả về response object để xử lý lỗi ở UI
+        return response;
     } catch (error) {
         console.error("Error fetching user data:", error);
         return null;

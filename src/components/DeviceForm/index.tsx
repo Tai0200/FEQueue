@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form, Input, Button, Row, Col, Select, Switch, message } from 'antd';
 import './DeviceForm.css';
+import { createDevice, updateDevice } from '../../pages/dashboard/Dashboard.logic';
 
 const { Option } = Select;
 type FormProps = {
@@ -11,31 +12,66 @@ type FormProps = {
 const DeviceForm = (props: FormProps) => {
   const [form] = Form.useForm();
   const token = localStorage.getItem('token');
-  const initialValues = Object.keys(props.myForm).length === 0 ?
-    {
-      deviceCode: '', // Pre-fill the username field
-      deviceName: '', // Pre-fill the email field
-      ipAddress: '',
-      username: '',
-      password: '',
-      operationStatus: false,
-      connected: false
+  const isEditMode = Object.keys(props.myForm).length > 0;
+
+  const getFormValues = () => {
+    if (!isEditMode) {
+      return {
+        deviceCode: '',
+        deviceName: '',
+        ipAddress: '',
+        username: '',
+        password: '',
+        service: '',
+        operationStatus: false,
+        connected: false
+      };
     }
-    : {
-      deviceCode: props.myForm.deviceCode, // Pre-fill the username field
-      deviceName: props.myForm.deviceName, // Pre-fill the email field
+    return {
+      deviceCode: props.myForm.deviceCode,
+      deviceName: props.myForm.deviceName,
       ipAddress: props.myForm.ipAddress,
       username: props.myForm.username,
       password: props.myForm.password,
-      operationStatus: props.myForm.operationStatus == "Active" ? true : false,
-      connected: props.myForm.connected == "Connected" ? true : false
+      service: props.myForm.services || '',
+      operationStatus: props.myForm.operationStatus == "Active",
+      connected: props.myForm.connected == "Connected"
+    };
+  };
+
+  const initialValues = getFormValues();
+
+  useEffect(() => {
+    if (isEditMode) {
+      form.setFieldsValue(getFormValues());
+    } else {
+      form.resetFields();
     }
+  }, [props.myForm]);
   const handleFinish = async (values: any) => {
-    if (props.myForm.deviceCode == "") {
+    const deviceData = {
+      DeviceCode: values.deviceCode,
+      DeviceName: values.deviceName,
+      IpAddress: values.ipAddress,
+      UserName: values.username,
+      Password: values.password,
+      Services: values.service || "",
+      OperationStatus: values.operationStatus === true,
+      Connected: values.connected === true
+    };
 
+    let result;
+    if (isEditMode) {
+      result = await updateDevice(deviceData);
+    } else {
+      result = await createDevice(deviceData);
     }
-    else {
 
+    if (result.success) {
+      message.success(result.message);
+      props.handleSendStatus(false); // Close modal
+    } else {
+      message.error(result.message);
     }
   };
 

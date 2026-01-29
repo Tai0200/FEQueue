@@ -1,13 +1,13 @@
 // components/DeviceList.tsx
 import React, { useEffect, useState, useContext } from "react";
-import { Table, Select, Input, Modal, Tag } from "antd";
+import { Table, Select, Input, Modal, Tag, message } from "antd";
 import _ from 'lodash';
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import "./DeviceList.css";
 import AddDeviceButton from "../AddDeviceButton";
 import UserSection from "../userSection";
 import NewQueueForm from "../NewQueueForm";
-import { formatDate } from '../../pages/dashboard/Dashboard.logic';
+import { formatDate, deleteDevice, getDeviceData } from '../../pages/dashboard/Dashboard.logic';
 import { getProvidedNumber, getTotalNumber } from "../../pages/dashboard/Dashboard.logic";
 import AccountForm from "../AccountForm";
 import DeviceForm from "../DeviceForm";
@@ -35,6 +35,8 @@ const DeviceList = React.memo((props: DeviceListProps) => {
   const connection = useContext(SignalRContext);
   const [deletedEmail, setDeletedEmail] = useState('');
   const [isModelDeleteOpen, setIsModelDeleteOpen] = useState(false);
+  const [deletedDeviceCode, setDeletedDeviceCode] = useState('');
+  const [isDeviceDeleteModalOpen, setIsDeviceDeleteModalOpen] = useState(false);
   const token = localStorage.getItem('token');
   const [filter1Value, setFilter1Value] = useState('All');
   const [filter2Value, setFilter2Value] = useState('All');
@@ -55,8 +57,13 @@ const DeviceList = React.memo((props: DeviceListProps) => {
   const [data, setData] = useState(props.data);
   const [rowCount, setRowCount] = useState(props.rowCount ?? 1);
 
-  const receiveStatus = (status: boolean) => {
+  const receiveStatus = async (status: boolean) => {
     setIsModalOpen(status);
+    // If modal is closed (status=false), refresh device data
+    if (!status && props.columns === 1) {
+      const newData = await getDeviceData();
+      setData(newData);
+    }
   }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,6 +161,11 @@ const DeviceList = React.memo((props: DeviceListProps) => {
       render: (text: string, record: any, index: number) => (
         <>
           <a href="#" style={{ marginRight: 10 }}
+            onClick={(e) => {
+              e.preventDefault();
+              setDeletedDeviceCode(record.deviceCode);
+              setIsDeviceDeleteModalOpen(true);
+            }}
           >
             Xóa
           </a>
@@ -498,6 +510,24 @@ const DeviceList = React.memo((props: DeviceListProps) => {
         className="custom-modal"
       >
         <h3>Bạn thật sự muốn xóa tài khoản này?</h3>
+      </Modal>
+      <Modal title="Xác nhận xóa thiết bị" open={isDeviceDeleteModalOpen} onOk={async () => {
+        const result = await deleteDevice(deletedDeviceCode);
+        if (result.success) {
+          message.success(result.message);
+          // Refresh device data
+          const newData = await getDeviceData();
+          setData(newData);
+        } else {
+          message.error(result.message);
+        }
+        setIsDeviceDeleteModalOpen(false);
+      }} onCancel={() => { setIsDeviceDeleteModalOpen(false) }}
+        className="custom-modal"
+        okText="Xóa"
+        cancelText="Hủy"
+      >
+        <h3>Bạn có chắc chắn muốn xóa thiết bị "{deletedDeviceCode}" không?</h3>
       </Modal>
     </div>
   );
