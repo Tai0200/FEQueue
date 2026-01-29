@@ -14,29 +14,33 @@ const DeviceForm = (props: FormProps) => {
   const token = localStorage.getItem('token');
   const initialValues = Object.keys(props.myForm).length === 0 ?
     {
-      deviceCode: '', // Pre-fill the username field
-      deviceName: '', // Pre-fill the email field
+      deviceCode: '',
+      deviceName: '',
       ipAddress: '',
       username: '',
       password: '',
+      service: '',
       operationStatus: false,
       connected: false
     }
     : {
-      deviceCode: props.myForm.deviceCode, // Pre-fill the username field
-      deviceName: props.myForm.deviceName, // Pre-fill the email field
+      deviceCode: props.myForm.deviceCode,
+      deviceName: props.myForm.deviceName,
       ipAddress: props.myForm.ipAddress,
       username: props.myForm.username,
       password: props.myForm.password,
-      operationStatus: props.myForm.operationStatus == "Active" ? true : false,
-      connected: props.myForm.connected == "Connected" ? true : false
-    }
+      service: props.myForm.services,
+      operationStatus: props.myForm.operationStatus === "Active" || props.myForm.operationStatus === true,
+      connected: props.myForm.connected === "Connected" || props.myForm.connected === true
+    };
+
   const handleFinish = async (values: any) => {
+    const isUpdate = props.myForm.deviceCode && props.myForm.deviceCode !== "";
     const payload = {
       DeviceCode: values.deviceCode,
       DeviceName: values.deviceName,
       IpAddress: values.ipAddress,
-      DeviceType: values.deviceType || "Kiosk",
+      DeviceType: "Kiosk", // Default to Kiosk as it's typically the main type
       UserName: values.username,
       Password: values.password,
       Services: values.service,
@@ -45,8 +49,9 @@ const DeviceForm = (props: FormProps) => {
     };
 
     try {
-      const url = process.env.REACT_APP_API_URL + 'api/Device/';
-      const isUpdate = props.myForm.deviceCode && props.myForm.deviceCode !== "";
+      const url = isUpdate
+        ? `${process.env.REACT_APP_API_URL}api/Device/${props.myForm.deviceCode}`
+        : `${process.env.REACT_APP_API_URL}api/Device/`;
 
       const response = await fetchWithTokenRetry(url, {
         method: isUpdate ? 'PUT' : 'POST',
@@ -118,16 +123,6 @@ const DeviceForm = (props: FormProps) => {
             </Form.Item>
             <Form.Item label="Đang kết nối" name="connected" valuePropName="checked">
               <Switch />
-            </Form.Item>
-            <Form.Item
-              name="deviceType"
-              label="Loại thiết bị"
-              rules={[{ required: true, message: 'Loại thiết bị là bắt buộc' }]}
-            >
-              <Select placeholder="Chọn loại thiết bị">
-                <Option value="Kiosk">Kiosk</Option>
-                <Option value="Display">Display</Option>
-              </Select>
             </Form.Item>
             <Form.Item
               name="username"

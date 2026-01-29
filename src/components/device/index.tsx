@@ -58,8 +58,37 @@ const DeviceList = React.memo((props: DeviceListProps) => {
   const [data, setData] = useState(props.data);
   const [rowCount, setRowCount] = useState(props.rowCount ?? 1);
 
+  const refreshData = async () => {
+    setLoading(true);
+    try {
+      if (props.columns === 1) { // Devices
+        const { getDeviceData } = await import('../../pages/dashboard/Dashboard.logic');
+        setData(await getDeviceData());
+      } else if (props.columns === 2) { // Services
+        const { getServiceData } = await import('../../pages/dashboard/Dashboard.logic');
+        setData(await getServiceData());
+      } else if (props.columns === 4) { // Users
+        const { getUserData } = await import('../../pages/dashboard/Dashboard.logic');
+        let temp = await getUserData();
+        setData(localStorage.getItem('userRole') != 'Doctor' ? temp : temp.filter((x: any) => x.email == localStorage.getItem('userName')));
+      } else if (props.columns === 3) { // Provided Numbers
+        let temp = await getProvidedNumber("All", "2000-01-01", "2050-12-12", "All", "___", 1, 5, "-1");
+        let count = await getTotalNumber('All', '2000-01-01', '2050-12-31', 'All', '___', 'All')
+        setRowCount(count);
+        setData(temp);
+      }
+    } catch (error) {
+      console.error("Refresh failed:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const receiveStatus = (status: boolean) => {
     setIsModalOpen(status);
+    if (!status) {
+      refreshData();
+    }
   }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);

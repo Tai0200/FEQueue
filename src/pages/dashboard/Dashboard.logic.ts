@@ -80,18 +80,10 @@ export const getServiceData = async (): Promise<any> => {
 
 export const getTotalNumber = async (serviceCode: string, start: string, end: string, deviceCode: string, searchText: string, status: string): Promise<number> => {
     const userName = localStorage.getItem('userName');
-    const token = localStorage.getItem('token');
     const url = `${process.env.REACT_APP_API_URL}api/Assignment/count/${userName}/${serviceCode}/${start}/${end}/${deviceCode}/${searchText}/${status}`;
 
     try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const response = await fetchWithTokenRetry(url);
 
         if (!response.ok) throw new Error("Count API failed");
         return await response.json();
