@@ -413,6 +413,16 @@ const DeviceList = React.memo((props: DeviceListProps) => {
   ];
 
   useEffect(() => {
+    async function getDataSvc() {
+      const { getServiceData } = await import('../../pages/dashboard/Dashboard.logic');
+      let srvData = await getServiceData();
+      setServiceOptions(srvData.map((item: any) => ({
+        value: item.serviceCode,
+        label: item.serviceName
+      })));
+    }
+    getDataSvc();
+
     if (connection != null)
       connection.on("AssignmentUpdated", async (status: boolean) => {
         if (status && props.columns == 3) {

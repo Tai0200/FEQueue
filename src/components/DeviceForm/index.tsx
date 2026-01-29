@@ -29,7 +29,7 @@ const DeviceForm = (props: FormProps) => {
       ipAddress: props.myForm.ipAddress,
       username: props.myForm.username,
       password: props.myForm.password,
-      service: props.myForm.services,
+      service: props.myForm.services ? (typeof props.myForm.services === 'string' ? props.myForm.services.split(',').map((s: string) => s.trim()) : props.myForm.services) : [],
       operationStatus: props.myForm.operationStatus === "Active" || props.myForm.operationStatus === true,
       connected: props.myForm.connected === "Connected" || props.myForm.connected === true
     };
@@ -40,10 +40,10 @@ const DeviceForm = (props: FormProps) => {
       DeviceCode: values.deviceCode,
       DeviceName: values.deviceName,
       IpAddress: values.ipAddress,
-      DeviceType: "Kiosk", // Default to Kiosk as it's typically the main type
+      DeviceType: "Kiosk",
       UserName: values.username,
       Password: values.password,
-      Services: values.service,
+      Services: Array.isArray(values.service) ? values.service.join(', ') : values.service,
       OperationStatus: !!values.operationStatus,
       Connected: !!values.connected
     };
@@ -113,7 +113,15 @@ const DeviceForm = (props: FormProps) => {
               label="Dịch vụ sử dụng"
               rules={[{ required: true, message: 'Dịch vụ sử dụng là bắt buộc' }]}
             >
-              <Input placeholder="Nhập dịch vụ sử dụng" />
+              <Select
+                mode="multiple"
+                placeholder="Chọn dịch vụ"
+                style={{ width: '100%' }}
+              >
+                {props.serviceOptions.map((opt: any) => (
+                  <Option key={opt.value} value={opt.value}>{opt.label}</Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
           {/* Cột 2 */}
