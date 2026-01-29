@@ -21,7 +21,7 @@ class SignalRService {
 
   async startConnection() {
     console.log("SignalR connection skipped (temporarily disabled)");
-
+    /*
     try {
       if (this.connection.state === signalR.HubConnectionState.Disconnected) {
         await this.connection.start();
@@ -31,7 +31,7 @@ class SignalRService {
       console.error("Error starting SignalR connection:", error);
       setTimeout(() => this.startConnection(), 5000); // Retry on failure
     }
-
+    */
   }
 
   stopConnection() {

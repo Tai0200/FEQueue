@@ -1,44 +1,41 @@
-export const fetchWithTokenRetry = async (url: string): Promise<any> => {
+export const fetchWithTokenRetry = async (url: string, options: RequestInit = {}): Promise<any> => {
     const token = localStorage.getItem("token") ?? '';
-    return new Promise(resolve => {
-        fetch(url, {
-            method: 'GET',
+    const defaultHeaders: Record<string, string> = {
+        "Accept": "application/json",
+        "Authorization": `Bearer ${token}`
+    };
+
+    if (!(options.body instanceof FormData)) {
+        defaultHeaders["Content-Type"] = "application/json";
+    }
+
+    try {
+        const response = await fetch(url, {
+            ...options,
             headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                ...defaultHeaders,
+                ...(options.headers as Record<string, string> || {})
             },
             credentials: 'include'
-        }).then(response => {
-            if (!response.ok) {
-                if (response.status === 401) {
-                    console.log("Token expired, refreshing...");
-                    const isTokenRefreshed = refreshToken();
-                    isTokenRefreshed.then(data => {
-                        if (data) {
-                            fetchWithTokenRetry(url);
-                        }
-                        else {
-                            const logout = callLogout();
-                            logout.then(data1 => {
-                                if (data1) {
-                                    localStorage.clear();
-                                    window.location.reload();
-                                }
-                            })
-                        }
-                    })
-                } else {
-                    // Handle other HTTP errors
-                    throw new Error(`HTTP error: ${response.status}`);
-                }
+        });
+
+        if (response.status === 401) {
+            console.log("Token expired, refreshing...");
+            const isRefreshed = await refreshToken();
+            if (isRefreshed) {
+                return await fetchWithTokenRetry(url, options);
+            } else {
+                await callLogout();
+                localStorage.clear();
+                window.location.href = '/login';
+                return response;
             }
-            resolve(response)
-        })
-            .catch(error => {
-                console.error("Network or CORS error:", error);
-            })
-    })
+        }
+        return response;
+    } catch (error) {
+        console.error("Network or CORS error:", error);
+        throw error;
+    }
 }
 async function refreshToken() {
     try {

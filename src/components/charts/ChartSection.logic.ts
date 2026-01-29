@@ -1,5 +1,6 @@
+import { fetchWithTokenRetry } from "../../helpers/tokens";
+
 export const getChartData = async (optionSelected: string): Promise<{ name: string, value: number }[]> => {
-    const token = localStorage.getItem('token');
     const currentMonth = new Date().getMonth() + 1;
     let endpoint = '';
 
@@ -15,16 +16,8 @@ export const getChartData = async (optionSelected: string): Promise<{ name: stri
     const url = `${process.env.REACT_APP_API_URL}${endpoint}`;
 
     try {
-        // 2. Sử dụng await trực tiếp với fetch (fetch trả về Promise nên không cần new Promise bên ngoài)
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Accept': 'application/json'
-            }
-        });
+        const response = await fetchWithTokenRetry(url);
 
-        // 3. Kiểm tra HTTP Status (Cực kỳ quan trọng để bắt lỗi 4xx, 5xx)
         if (!response.ok) {
             throw new Error(`API Error: ${response.status} - ${response.statusText}`);
         }

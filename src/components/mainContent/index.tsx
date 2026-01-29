@@ -38,7 +38,7 @@ const MainContent: React.FC = () => {
     },
   ]);
   async function getStatistic() {
-    let temp = await getSummaryData(token);
+    let temp = await getSummaryData();
     setCardsData([
       {
         icon: <CalendarOutlined style={{ color: "#409EFF" }} />,

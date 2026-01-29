@@ -1,42 +1,69 @@
 import React from 'react';
 import { Form, Input, Button, Row, Col, Select, Switch, message } from 'antd';
+import { fetchWithTokenRetry } from '../../helpers/tokens';
 import './DeviceForm.css';
 
 const { Option } = Select;
 type FormProps = {
   myForm: any,
   serviceOptions: any,
-  handleSendStatus: (status:boolean)=>void
+  handleSendStatus: (status: boolean) => void
 }
-const DeviceForm = (props:FormProps) => {
+const DeviceForm = (props: FormProps) => {
   const [form] = Form.useForm();
   const token = localStorage.getItem('token');
   const initialValues = Object.keys(props.myForm).length === 0 ?
-  {
-    deviceCode: '', // Pre-fill the username field
-    deviceName: '', // Pre-fill the email field
-    ipAddress: '',
-    username:'',
-    password:'',
-    operationStatus:false,
-    connected:false
-  }
-  : {
-    deviceCode: props.myForm.deviceCode, // Pre-fill the username field
-    deviceName: props.myForm.deviceName, // Pre-fill the email field
-    ipAddress: props.myForm.ipAddress,
-    username: props.myForm.username,
-    password: props.myForm.password,
-    operationStatus: props.myForm.operationStatus=="Active"?true:false,
-    connected: props.myForm.connected=="Connected"?true:false
-  }
-  const handleFinish = async (values: any) => {
-    if(props.myForm.deviceCode==""){
-              
+    {
+      deviceCode: '', // Pre-fill the username field
+      deviceName: '', // Pre-fill the email field
+      ipAddress: '',
+      username: '',
+      password: '',
+      operationStatus: false,
+      connected: false
     }
-    else{
-    
-  }
+    : {
+      deviceCode: props.myForm.deviceCode, // Pre-fill the username field
+      deviceName: props.myForm.deviceName, // Pre-fill the email field
+      ipAddress: props.myForm.ipAddress,
+      username: props.myForm.username,
+      password: props.myForm.password,
+      operationStatus: props.myForm.operationStatus == "Active" ? true : false,
+      connected: props.myForm.connected == "Connected" ? true : false
+    }
+  const handleFinish = async (values: any) => {
+    const payload = {
+      DeviceCode: values.deviceCode,
+      DeviceName: values.deviceName,
+      IpAddress: values.ipAddress,
+      DeviceType: values.deviceType || "Kiosk",
+      UserName: values.username,
+      Password: values.password,
+      Services: values.service,
+      OperationStatus: !!values.operationStatus,
+      Connected: !!values.connected
+    };
+
+    try {
+      const url = process.env.REACT_APP_API_URL + 'api/Device/';
+      const isUpdate = props.myForm.deviceCode && props.myForm.deviceCode !== "";
+
+      const response = await fetchWithTokenRetry(url, {
+        method: isUpdate ? 'PUT' : 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        message.success(isUpdate ? 'Cập nhật thiết bị thành công' : 'Thêm thiết bị thành công');
+        props.handleSendStatus(false);
+      } else {
+        const errorData = await response.json();
+        message.error(errorData.message || 'Có lỗi xảy ra khi lưu thiết bị');
+      }
+    } catch (error) {
+      console.error("Error saving device:", error);
+      message.error('Không thể kết nối đến server');
+    }
   };
 
   return (
@@ -86,13 +113,23 @@ const DeviceForm = (props:FormProps) => {
           </Col>
           {/* Cột 2 */}
           <Col xs={24} lg={12}>
-          <Form.Item label="Đang hoạt động" name="operationStatus" valuePropName="checked">
+            <Form.Item label="Đang hoạt động" name="operationStatus" valuePropName="checked">
               <Switch />
-          </Form.Item>
-          <Form.Item label="Đang kết nối" name="connected" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-          <Form.Item
+            </Form.Item>
+            <Form.Item label="Đang kết nối" name="connected" valuePropName="checked">
+              <Switch />
+            </Form.Item>
+            <Form.Item
+              name="deviceType"
+              label="Loại thiết bị"
+              rules={[{ required: true, message: 'Loại thiết bị là bắt buộc' }]}
+            >
+              <Select placeholder="Chọn loại thiết bị">
+                <Option value="Kiosk">Kiosk</Option>
+                <Option value="Display">Display</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
               name="username"
               label="Tên đăng nhập"
               rules={[{ required: true, message: 'Tên đăng nhập là bắt buộc' }]}

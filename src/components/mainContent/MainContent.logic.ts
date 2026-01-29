@@ -1,15 +1,10 @@
-export const getSummaryData = async (token: string): Promise<any> => {
+import { fetchWithTokenRetry } from "../../helpers/tokens";
+
+export const getSummaryData = async (): Promise<any> => {
     const url = `${process.env.REACT_APP_API_URL}api/Assignment/statistic`;
 
     try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const response = await fetchWithTokenRetry(url);
 
         // Kiểm tra HTTP Status
         if (!response.ok) {
