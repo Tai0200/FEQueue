@@ -18,7 +18,7 @@ interface DeviceUpdateFormProps {
   onCancel: () => void;
 }
 
-const DeviceUpdateForm = (props:DeviceUpdateFormProps) => {
+const DeviceUpdateForm = (props: DeviceUpdateFormProps) => {
   const [form] = Form.useForm();
   const [services, setServices] = useState<string[]>(props.initialValues.services);
 
@@ -88,16 +88,6 @@ const DeviceUpdateForm = (props:DeviceUpdateFormProps) => {
           </Col>
           {/* Cột 2 */}
           <Col xs={24} lg={12}>
-            <Form.Item
-              name="deviceType"
-              label="Loại thiết bị"
-              rules={[{ required: true, message: 'Loại thiết bị là bắt buộc' }]}
-            >
-              <Select placeholder="Chọn loại thiết bị">
-                <Option value="Kiosk">Kiosk</Option>
-                <Option value="Display">Display</Option>
-              </Select>
-            </Form.Item>
             <Form.Item
               name="username"
               label="Tên đăng nhập"

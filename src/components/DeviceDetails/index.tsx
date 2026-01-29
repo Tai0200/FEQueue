@@ -13,7 +13,7 @@ interface DeviceDetailsProps {
   };
 }
 
-const DeviceDetails = (props:DeviceDetailsProps) => {
+const DeviceDetails = (props: DeviceDetailsProps) => {
   return (
     <div className="device-details-container">
       <h2 className="device-details-title">Quản lý thiết bị</h2>
@@ -37,10 +37,6 @@ const DeviceDetails = (props:DeviceDetailsProps) => {
           </div>
         </div>
         <div className="device-info">
-          <div>
-            <span className="label">Loại thiết bị:</span>
-            <span className="value">{props.device.deviceType}</span>
-          </div>
           <div>
             <span className="label">Tên đăng nhập:</span>
             <span className="value">{props.device.username}</span>

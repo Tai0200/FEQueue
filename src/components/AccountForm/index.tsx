@@ -130,6 +130,7 @@ const AccountForm = (props: AccountFormProps) => {
 
         console.log("PUT success:", data);
         message.success("Lưu dữ liệu thành công");
+        props.handleSendStatus(false);
       } catch (e: any) {
         console.error("PUT error:", e);
         message.error(e?.message ?? "Cập nhật thất bại");
@@ -282,7 +283,7 @@ const AccountForm = (props: AccountFormProps) => {
         {/* Nút hành động */}
         <Form.Item>
           <div className="form-actions">
-            <Button htmlType="button">Hủy bỏ</Button>
+            <Button htmlType="button" onClick={() => props.handleSendStatus(false)}>Hủy bỏ</Button>
             <Button type="primary" htmlType="submit">
               Lưu dữ liệu
             </Button>

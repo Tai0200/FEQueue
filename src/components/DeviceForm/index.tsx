@@ -143,7 +143,7 @@ const DeviceForm = (props: FormProps) => {
         {/* Nút hành động */}
         <Form.Item>
           <div className="form-actions">
-            <Button htmlType="button">Hủy bỏ</Button>
+            <Button htmlType="button" onClick={() => props.handleSendStatus(false)}>Hủy bỏ</Button>
             <Button type="primary" htmlType="submit">
               Lưu thông tin
             </Button>
