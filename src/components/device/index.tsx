@@ -240,6 +240,10 @@ const DeviceList = React.memo((props: DeviceListProps) => {
             Chi tiết
           </a>
           <a href="#" style={{ marginRight: 10 }}
+            onClick={() => {
+              setDataUserEdit(record);
+              setIsModalOpen(true);
+            }}
           >Cập nhật</a>
           <a href="#"
             onClick={() => {
@@ -532,7 +536,7 @@ const DeviceList = React.memo((props: DeviceListProps) => {
           handleSendStatus={receiveStatus}
         /> : props.columns == 1 ? <DeviceForm myForm={dataUserEdit} serviceOptions={serviceOptions}
           handleSendStatus={receiveStatus} />
-          : <ServiceForm />
+          : <ServiceForm myForm={dataUserEdit} handleSendStatus={receiveStatus} />
         }
       </Modal>
       <Modal title="" open={isModelNumberOpen} onOk={handleNumberOk} onCancel={handleNumberCancel}
